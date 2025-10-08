@@ -72,12 +72,13 @@ async function createTables() {
     const { title, questions, email } = req.body;
     const { data, error } = await supabase
       .from("forms")
-      .insert([{ title, questions, created_by: email }]);
+      .insert([{ title, questions, created_by: email }])
+      .select();
 
     if (error) {
       return res.status(400).json({ error: error.message });
     }
-    res.status(201).json(data);
+    res.status(201).json(data[0]);
   });
 
   app.post("/responses", async (req, res) => {

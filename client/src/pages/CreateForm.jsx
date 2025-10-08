@@ -40,8 +40,12 @@ const CreateForm = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        alert("Form published successfully!");
-        setFormLink(`${window.location.origin}/form/${data.id}`);
+        if (data && data.id) {
+          alert("Form published successfully! You can copy the link below.");
+          setFormLink(`${window.location.origin}/form/${data.id}`);
+        } else {
+          alert("Form published, but could not retrieve the link.");
+        }
       } else {
         const errorData = await response.json();
         alert(`Failed to publish form: ${errorData.error}`);
