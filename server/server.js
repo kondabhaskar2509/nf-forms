@@ -18,20 +18,23 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const port = 5000;
 
 const CREATE_TABLE = {
-  login: `create table if not exists login (
+  login:
+   `create table if not exists login (
     id serial primary key,
     name text not null,
     email text unique not null,
     created_at timestamptz default now()
   );`,
-  forms: `create table if not exists forms (
+  forms: 
+  `create table if not exists forms (
     id serial primary key,
     title text not null,
     questions jsonb not null,
     created_by text ,
     created_at timestamptz default now()
   );`,
-  responses: `create table if not exists responses (
+  responses: 
+  `create table if not exists responses (
     id serial primary key,
     form_no integer ,
     responses jsonb not null,
@@ -67,7 +70,6 @@ async function createTables() {
     responses: "responses",
   };
 
-
   app.post("/forms", async (req, res) => {
     const { title, questions, email } = req.body;
     const { data, error } = await supabase
@@ -93,7 +95,7 @@ async function createTables() {
     res.status(201).json(data);
   });
 
-  app.get("/forms/:id", async (req, res) => {
+  app.get("/fetchform/:id", async (req, res) => {
     const { id } = req.params;
     const { data, error } = await supabase
       .from("forms")
@@ -107,7 +109,7 @@ async function createTables() {
     res.status(200).json(data);
   });
 
-    app.put("/forms/:id", async (req, res) => {
+  app.put("/editform/:id", async (req, res) => {
     const { id } = req.params;
     const { title, questions } = req.body;
     const { data, error } = await supabase
@@ -120,7 +122,6 @@ async function createTables() {
     }
     res.status(200).json(data);
   });
-
 
   app.get("/my-forms/:email", async (req, res) => {
     const { email } = req.params;
@@ -135,10 +136,8 @@ async function createTables() {
     res.status(200).json(data);
   });
 
-
   app.post("/signin", async (req, res) => {
     try {
-
       const { code } = req.body;
       const tokenresponse = await fetch(
         "https://auth.delta.nitt.edu/api/oauth/token",

@@ -43,7 +43,7 @@ const EditForm = () => {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:5000/forms/${id}`, {
+      const response = await fetch(`http://localhost:5000/editform/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, questions }),

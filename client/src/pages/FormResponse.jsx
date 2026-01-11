@@ -9,7 +9,7 @@ const FormResponse = () => {
 
   useEffect(() => {
     const fetchForm = async () => {
-      const response = await fetch(`http://localhost:5000/forms/${id}`);
+      const response = await fetch(`http://localhost:5000/fetchform/${id}`);
       const data = await response.json();
       setForm(data);
       setResponses(new Array(data.questions.length).fill(''));
