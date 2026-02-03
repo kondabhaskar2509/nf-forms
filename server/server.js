@@ -1,9 +1,7 @@
 import express from "express";
 import cors from "cors";
-import { createClient } from "@supabase/supabase-js";
-import pg from "pg";
 import "dotenv/config.js";
-const { Client } = pg;
+
 
 const app = express();
 app.use(cors());
@@ -11,30 +9,28 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-const databaseUrl = process.env.DATABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+import { createClient } from "@supabase/supabase-js";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const port = 5000;
 
-const CREATE_TABLE = {
-  login:
-   `create table if not exists login (
+const TABLES = {
+  login: `create table if not exists login (
     id serial primary key,
     name text not null,
     email text unique not null,
     created_at timestamptz default now()
   );`,
-  forms: 
-  `create table if not exists forms (
+  forms: `create table if not exists forms (
     id serial primary key,
     title text not null,
     questions jsonb not null,
     created_by text ,
     created_at timestamptz default now()
   );`,
-  responses: 
-  `create table if not exists responses (
+  responses: `create table if not exists responses (
     id serial primary key,
     form_no integer ,
     responses jsonb not null,
@@ -44,31 +40,24 @@ const CREATE_TABLE = {
 };
 
 async function createTables() {
-  if (databaseUrl) {
     try {
-      const client = new Client({ connectionString: databaseUrl });
-      await client.connect();
-      await client.query(CREATE_TABLE.login);
-      await client.query(CREATE_TABLE.forms);
-      await client.query(CREATE_TABLE.responses);
-      await client.end();
-      console.log('Created tables "login", "forms", and "responses"');
-      return;
+      for(const key in TABLES){
+        const {error} = await supabase.rpc("execute_sql",{
+          sql:TABLES[key],
+        })
+        if(error) throw error;
+      }
+      console.log("tables created succesfully");
     } catch (err) {
-      console.error("Error creating tables:", err.message || err);
+      console.error("error creating tables:", err.message);
     }
-  }
 }
 
 (async () => {
   await createTables();
 
   app.locals.supabase = supabase;
-  app.locals.tables = {
-    login: "login",
-    forms: "forms",
-    responses: "responses",
-  };
+  app.locals.tables = {login: "login", forms: "forms", responses: "responses"};
 
   app.post("/forms", async (req, res) => {
     const { title, questions, email } = req.body;
